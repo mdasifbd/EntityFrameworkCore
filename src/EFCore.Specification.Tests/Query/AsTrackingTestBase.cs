@@ -115,6 +115,29 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalFact]
+        public virtual void Load_works_when_using_AsTracking()
+        {
+            using (var context = CreateContext())
+            {
+                var order = context.Orders.Where(o => o.OrderID == 10248).AsTracking().Single();
+
+                Assert.NotNull(order);
+
+                context.Entry(order)
+                    .Collection(o => o.OrderDetails)
+                    .Load();
+
+                Assert.NotEmpty(order.OrderDetails);
+
+                context.Entry(order)
+                    .Reference(o => o.Customer)
+                    .Load();
+
+                Assert.NotNull(order.Customer);
+            }
+        }
+
         protected NorthwindContext CreateContext()
         {
             var context = Fixture.CreateContext();
